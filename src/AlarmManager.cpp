@@ -22,23 +22,25 @@ void AlarmManager::begin() {
 
 void AlarmManager::setAlarm(int hour, int minute) {
     if (hour >= 0 && hour < 24 && minute >= 0 && minute < 60) {
-        _alarmHour = hour;
-        _alarmMinute = minute;
-        _prefs.putInt(PREF_ALARM_HOUR, _alarmHour);
-        _prefs.putInt(PREF_ALARM_MINUTE, _alarmMinute);
-        _alarmTriggeredToday = false; // Reset when new alarm is set
+        if (hour != _alarmHour || minute != _alarmMinute) {
+            _alarmHour = hour;
+            _alarmMinute = minute;
+            _prefs.putInt(PREF_ALARM_HOUR, _alarmHour);
+            _prefs.putInt(PREF_ALARM_MINUTE, _alarmMinute);
+            _alarmTriggeredToday = false; // Reset when new alarm is set
+        }
     }
 }
 
 void AlarmManager::setAlarmDuration(int seconds) {
-    if (seconds > 0) {
+    if (seconds > 0 && seconds != _alarmDuration) {
         _alarmDuration = seconds;
         _prefs.putInt(PREF_ALARM_DURATION, _alarmDuration);
     }
 }
 
 void AlarmManager::setReminderInterval(int minutes) {
-    if (minutes > 0) {
+    if (minutes > 0 && minutes != _reminderInterval) {
         _reminderInterval = minutes;
         _prefs.putInt(PREF_REMINDER_INT, _reminderInterval);
     }

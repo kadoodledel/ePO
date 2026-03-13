@@ -5,6 +5,7 @@
  */
 
 #include "BLEManager.h"
+#include <BLESecurity.h>
 #include <cstdlib>
 
 void BLEManagerCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
@@ -32,6 +33,7 @@ void BLEManager::begin() {
         BLECharacteristic::PROPERTY_WRITE |
         BLECharacteristic::PROPERTY_NOTIFY
     );
+    _pCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
 
     _pCharacteristic->setCallbacks(new BLEManagerCallbacks(this));
     _pCharacteristic->addDescriptor(new BLE2902());
@@ -44,9 +46,14 @@ void BLEManager::begin() {
     pAdvertising->setMinPreferred(0x06);
     pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
+
+    BLESecurity* pSecurity = new BLESecurity();
+    pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
+    pSecurity->setCapability(ESP_IO_CAP_NONE);
+    pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
 }
 
-void BLEManager::sendNotification(String message) {
+void BLEManager::sendNotification(const String& message) {
     if (_deviceConnected && _pCharacteristic) {
         _pCharacteristic->setValue(message.c_str());
         _pCharacteristic->notify();
@@ -79,14 +86,18 @@ void BLEManager::handleReceivedData(const String& data) {
     } else if (*ptr == 'D') {
         // Duration setting: D60
         int duration = (int)strtol(ptr + 1, nullptr, 10);
-        if (_onDurationReceived) {
-            _onDurationReceived(duration);
+        if (duration >= 1 && duration <= 3600) {
+            if (_onDurationReceived) {
+                _onDurationReceived(duration);
+            }
         }
     } else if (*ptr == 'R') {
         // Reminder Interval setting: R15
         int interval = (int)strtol(ptr + 1, nullptr, 10);
-        if (_onReminderReceived) {
-            _onReminderReceived(interval);
+        if (interval >= 1 && interval <= 1440) {
+            if (_onReminderReceived) {
+                _onReminderReceived(interval);
+            }
         }
     }
 }
