@@ -46,6 +46,7 @@ public:
      */
     long getSecondsUntilNextAlarm(int currentHour, int currentMinute, int currentSecond);
 
+    int getAlarmHour() { return _alarmHour; }
     int getAlarmDuration() { return _alarmDuration; }
     int getReminderInterval() { return _reminderInterval; }
 
