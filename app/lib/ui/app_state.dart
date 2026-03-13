@@ -21,8 +21,9 @@ class AppState extends ChangeNotifier {
 
     bleService.notifications.listen((message) {
       if (message == "INTAKE_CONFIRMED" || message == "ALARM_START") {
-        // For the prototype, we assume the first medication is the one being tracked
-        // in a real scenario, we'd have a way to identify which med is in which slot.
+        // TODO: Implement multi-slot support.
+        // For the prototype, we assume the first medication is the one being tracked.
+        // In a real scenario, we'd have a way to identify which med is in which slot.
         String? medId = medications.isNotEmpty ? medications.first.id : null;
         medicationRepository.logIntake(message, medicationId: medId);
       }
