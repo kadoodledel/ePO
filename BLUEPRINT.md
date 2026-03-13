@@ -15,8 +15,8 @@ Clara is built on a modern, event-driven architecture that bridges hardware and 
 | **Microcontroller** | ESP32 (Arduino Framework) |
 | **Mobile App** | Flutter (iOS & Android) |
 | **Backend** | Firebase (Auth, Firestore, Cloud Functions, Messaging) |
-| **Local Connectivity** | BLE (Bluetooth Low Energy) for initial setup and local sync |
-| **Remote Sync** | Wi-Fi (HTTPS / Firestore REST API) |
+*   **Local Connectivity:** BLE (Bluetooth Low Energy) for initial setup, local sync, and real-time intake logging (Prototype Focus).
+*   **Remote Sync:** Wi-Fi (Future phase; currently not in scope for the prototype).
 
 ---
 
@@ -61,23 +61,37 @@ A scalable, hierarchical Firestore schema is used to manage multi-user and multi
 
 ## Hardware Interface
 
-The ESP32 communicates with the Firebase backend using a hybrid approach:
+For the prototype, the ESP32 communicates with the Flutter app exclusively via BLE:
 
-1.  **Initial Pairing & Wi-Fi Provisioning:** Done via BLE using a secure Flutter-to-ESP32 handshake.
-2.  **State Sync (ESP32 to Cloud):** The ESP32 sends a POST request to a Firebase Cloud Function (or uses the Firestore REST API directly) when a physical intake event occurs (e.g., Reed switch open + Touch sensor active).
-3.  **Real-Time Alerts (Cloud to ESP32):** While primarily sleeping to save battery, the ESP32 wakes up periodically or can be woken by a hardware timer based on its local schedule (synced once daily from Firestore).
+1.  **Initial Pairing:** Done via BLE.
+2.  **State Sync (ESP32 to App to Cloud):** When a physical intake event occurs (Reed switch + Touch), the ESP32 sends a notification to the App via BLE. The App then logs this event to Firestore.
+3.  **Real-Time Alerts:** The ESP32 manages its own local alarm schedule (synced from the App via BLE) and triggers alerts accordingly.
 
 ---
 
 ## Logic Flow: The 'Happy Path'
 
-1.  **Schedule Trigger:** A Firebase Cloud Function or a local hardware timer on the ESP32 identifies that a dose is due.
-2.  **Push Notification:** Firebase Cloud Messaging sends a push notification to the Flutter app.
-3.  **Hardware Alert:** The ESP32 triggers a buzzer sound and LED blink to alert the user locally.
+1.  **Schedule Trigger:** A local hardware timer on the ESP32 identifies that a dose is due.
+2.  **Hardware Alert:** The ESP32 triggers a buzzer sound and LED blink.
+3.  **Push Notification:** The App (if connected) or local mobile notifications alert the user.
 4.  **User Opens Box:** The user physically interacts with the Clara pillbox.
-5.  **ESP32 Updates Firestore:** Sensors (Reed switch + Touch) confirm the intake. The ESP32 sends a signal to the `usage_logs` collection.
-6.  **App Confirms Intake:** The Flutter app, listening to Firestore changes, updates the UI in real-time, marks the dose as 'taken', and decrements the `stock_count` in the `medications` collection.
-7.  **Success State:** A success message or animation appears on the phone, and the hardware alert stops.
+5.  **Intake Verification:** Sensors (Reed switch open + Touch activated) confirm the intake.
+6.  **App Updates Firestore:** The App receives the confirmation via BLE, logs it in `usage_logs`, and decrements the `stock_count`.
+7.  **Success State:** The hardware alert stops, and the App UI reflects the updated status.
+
+---
+
+## Prototype Roadmap (Missing Pieces)
+
+### Firmware
+*   [ ] **Sensor Fusion:** Require both Reed Switch and Touch for intake confirmation.
+*   [ ] **Alert Timings:** Implement configurable Alarm Duration (auto-snooze) and Reminder Intervals.
+*   [ ] **Persistence:** Store duration and interval settings in NVS.
+
+### Flutter App
+*   [ ] **Schedule Dashboard:** Implement a daily/weekly timeline UI.
+*   [ ] **Stock Logic:** Implement client-side stock decrement and low-stock warnings.
+*   [ ] **Medication CRUD:** UI to manage medication details and schedules.
 
 ---
 *This document serves as the technical source of truth for the Clara project. Any changes to the architecture or data model must be reflected here first.*
