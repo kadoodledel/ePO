@@ -30,7 +30,14 @@ class AppState extends ChangeNotifier {
     });
 
     _medsSubscription = medicationRepository.getMedications().listen((meds) {
-      medications = meds;
+      // Pre-sort medications by their earliest dose for performance
+      final sortedMeds = List<Medication>.from(meds);
+      sortedMeds.sort((a, b) {
+        int aTime = (a.scheduleHours.first * 60) + a.scheduleMinutes.first;
+        int bTime = (b.scheduleHours.first * 60) + b.scheduleMinutes.first;
+        return aTime.compareTo(bTime);
+      });
+      medications = sortedMeds;
       notifyListeners();
     });
   }
