@@ -135,13 +135,8 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildTimeline(AppState appState) {
-    // Sort medications by their earliest dose for the timeline
-    final sortedMeds = List<Medication>.from(appState.medications);
-    sortedMeds.sort((a, b) {
-      int aTime = (a.scheduleHours.first * 60) + a.scheduleMinutes.first;
-      int bTime = (b.scheduleHours.first * 60) + b.scheduleMinutes.first;
-      return aTime.compareTo(bTime);
-    });
+    // Medications are pre-sorted in AppState for performance
+    final sortedMeds = appState.medications;
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
