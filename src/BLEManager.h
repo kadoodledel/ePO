@@ -35,7 +35,7 @@ public:
      * @brief Sends a notification to the connected client.
      * @param message Message to send.
      */
-    void sendNotification(const char* message);
+    void sendNotification(const String& message);
 
     /**
      * @brief Processed received data from BLE client.
