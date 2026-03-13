@@ -52,7 +52,7 @@ void EpoController::update() {
 
     // Notify BLE on Reed Switch Change
     if (_hw.hasReedStateChanged()) {
-        String msg = _hw.isReedClosed() ? "REED_CLOSED" : "REED_OPEN";
+        const char* msg = _hw.isReedClosed() ? "REED_CLOSED" : "REED_OPEN";
         _ble.sendNotification(msg);
     }
 

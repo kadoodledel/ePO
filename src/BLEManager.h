@@ -33,15 +33,15 @@ public:
 
     /**
      * @brief Sends a notification to the connected client.
-     * @param message String message to send.
+     * @param message Message to send.
      */
-    void sendNotification(String message);
+    void sendNotification(const char* message);
 
     /**
      * @brief Processed received data from BLE client.
      * Called by BLEManagerCallbacks.
      */
-    void handleReceivedData(const String& data);
+    void handleReceivedData(const char* data);
 
     // Callbacks for application logic
     void setOnTimeReceived(void (*callback)(unsigned long)) { _onTimeReceived = callback; }
