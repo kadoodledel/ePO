@@ -18,7 +18,7 @@ To get the app running with Firebase, you need to add your platform-specific con
 
 #### Android
 1. Create a project in the [Firebase Console](https://console.firebase.google.com/).
-2. Add an Android app with the package name `com.example.epo_app` (or your chosen package name).
+2. Add an Android app with the package name `com.clara.epo` (or your chosen package name).
 3. Download `google-services.json` and place it in `app/android/app/`.
 
 #### iOS
