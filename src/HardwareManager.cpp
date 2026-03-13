@@ -75,3 +75,14 @@ void HardwareManager::toggleAlertPeripherals() {
         digitalWrite(PIN_PIEZO_BUZZER, _peripheralState ? HIGH : LOW);
     }
 }
+
+void HardwareManager::setupSleepWakeup() {
+    // For Reed Switch (GPIO 13):
+    // ext0 supports only one GPIO. Wake on HIGH (Open).
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_REED_SWITCH, 1);
+
+    // Touch Wakeup:
+    // touchAttachInterrupt is often used to set the threshold for wakeup.
+    touchAttachInterrupt((uint8_t)PIN_TOUCH_SENSOR, NULL, (uint16_t)TOUCH_THRESHOLD);
+    esp_sleep_enable_touchpad_wakeup();
+}

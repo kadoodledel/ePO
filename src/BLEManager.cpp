@@ -15,7 +15,8 @@ void BLEManagerCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
 
 BLEManager::BLEManager()
     : _pServer(nullptr), _pCharacteristic(nullptr),
-      _deviceConnected(false), _onTimeReceived(nullptr), _onAlarmReceived(nullptr) {}
+      _deviceConnected(false), _onTimeReceived(nullptr), _onAlarmReceived(nullptr),
+      _onDurationReceived(nullptr), _onReminderReceived(nullptr) {}
 
 void BLEManager::begin() {
     BLEDevice::init(DEVICE_NAME);
@@ -60,11 +61,26 @@ void BLEManager::handleReceivedData(String data) {
             _onTimeReceived(epoch);
         }
     } else if (data.startsWith("A")) {
-        // Alarm setting: A08:30
-        int hour = data.substring(1, 3).toInt();
-        int minute = data.substring(4, 6).toInt();
-        if (_onAlarmReceived) {
-            _onAlarmReceived(hour, minute);
+        // Alarm setting: A08:30 or A8:30
+        int colonIndex = data.indexOf(':');
+        if (colonIndex != -1) {
+            int hour = data.substring(1, colonIndex).toInt();
+            int minute = data.substring(colonIndex + 1).toInt();
+            if (_onAlarmReceived) {
+                _onAlarmReceived(hour, minute);
+            }
+        }
+    } else if (data.startsWith("D")) {
+        // Duration setting: D60
+        int duration = data.substring(1).toInt();
+        if (_onDurationReceived) {
+            _onDurationReceived(duration);
+        }
+    } else if (data.startsWith("R")) {
+        // Reminder Interval setting: R15
+        int interval = data.substring(1).toInt();
+        if (_onReminderReceived) {
+            _onReminderReceived(interval);
         }
     }
 }
