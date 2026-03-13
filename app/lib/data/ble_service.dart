@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:epo_app/data/models/medication.dart';
 
 class BLEService {
   static const String serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -73,6 +74,14 @@ class BLEService {
     if (_mainCharacteristic == null) return;
     int epoch = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     await _sendCommand("T$epoch");
+  }
+
+  Future<void> syncMedication(Medication medication) async {
+    // TODO: [Technical Debt] Implement multi-slot individual medication hardware sync.
+    // For the prototype, we assume a single hardware slot and sync the first scheduled time.
+    if (medication.scheduleHours.isNotEmpty && medication.scheduleMinutes.isNotEmpty) {
+      await setAlarm(medication.scheduleHours.first, medication.scheduleMinutes.first);
+    }
   }
 
   Future<void> setAlarm(int hour, int minute) async {

@@ -107,9 +107,10 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                       await appState.medicationRepository.updateMedication(med);
                     }
 
-                    // TODO: Implement individual medication hardware sync.
+                    await appState.bleService.syncMedication(med);
+
+                    // TODO: [Technical Debt] Remove global hardware settings update when multi-slot hardware is available.
                     // For the prototype, we also update the hardware settings globally.
-                    await appState.bleService.setAlarm(_alarmHour, _alarmMinute);
                     await appState.medicationRepository.updateSettings(
                       alarmHour: _alarmHour,
                       alarmMinute: _alarmMinute,
