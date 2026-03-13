@@ -1,35 +1,33 @@
-# ePO - Smart Pill Box Firmware
+# Clara: Smart Pillbox for Medication Adherence
 
-ePO is a production-ready, modular firmware for an ESP32-based smart pill box. It manages medication schedules, provides haptic/visual alerts, and confirms intake via sensor fusion.
+## Project Vision & Scope
 
-## Features
-- **BLE Connectivity**: Synchronize time, set alarms, and configure reminder parameters.
-- **Persistence**: Alarm settings and device configuration survive power cycles.
-- **Advanced Power Management**: Utilizes Deep Sleep with multiple wake-up sources (Timer, Reed Switch, Touch).
-- **Intake Confirmation**: Uses a combination of a Reed switch (opening the box) and a Touch sensor to verify medication intake.
-- **Re-reminder Logic**: If intake is not detected within the alarm duration, the device will sleep and re-trigger an alert after a configurable interval.
+Project Clara is designed to bridge the gap in medication adherence for young adults (18-40) living with chronic conditions such as ADHD, Depression, Epilepsy, and Parkinson’s. By combining a portable, hardware-enabled pillbox with a seamless mobile experience, Clara ensures that managing complex medication schedules is intuitive rather than a burden.
 
-## BLE Interface
-Custom Service UUID: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`
-Characteristic UUID: `beb5483e-36e1-4688-b7f5-ea07361b26a8`
+### The Problem
+Traditional pillboxes are often bulky, clinical, and disconnected from the digital lives of young adults. For patients with conditions like ADHD or Depression, consistency is key, yet forgetfulness or lack of motivation can lead to missed doses, significantly impacting their quality of life. Current solutions lack the sophisticated notification systems and stock tracking required for modern chronic disease management.
 
-### Commands (Write)
-- `T<timestamp>`: Synchronize Unix timestamp (e.g., `T1672531200`).
-- `A<HH:MM>`: Set daily alarm time (e.g., `A08:30`).
-- `D<seconds>`: Set alarm alert duration (e.g., `D60`).
-- `R<minutes>`: Set re-reminder interval (e.g., `R15`).
+### The Solution: Clara
+Clara is a battery-powered, portable smart pillbox (built on the ESP32 platform) that syncs in real-time with a Flutter-based mobile application. It acts as a physical extension of the user's digital health routine, providing both tactile and digital feedback to ensure medication is taken on time, every time.
 
-### Notifications
-- `ALARM_START`: Initial medication alert.
-- `ALARM_RE_REMINDER`: Re-triggered alert after missed intake.
-- `INTAKE_CONFIRMED`: Intake detected (Reed open + Touch).
-- `INTAKE_SUCCESS`: Final intake confirmation and log.
-- `ALARM_TIMEOUT`: Alert ended without intake detection.
-- `REED_OPEN` / `REED_CLOSED`: Real-time reed switch status.
-- `ENTERING_SLEEP`: Device going to deep sleep.
+### Core Features
 
-## Hardware Configuration
-- **Reed Switch**: GPIO 13 (Input Pull-up)
-- **Touch Sensor**: GPIO 4
-- **Piezo Buzzer**: GPIO 14
-- **Internal LED**: GPIO 2
+#### 1. Intuitive Schedules
+A medication logging flow inspired by industry leaders like Apple Medication Reminders and MyTherapy.
+*   **Easy Setup:** Quickly add medications with dosage instructions.
+*   **Visual Timeline:** A clear daily view of upcoming and completed doses.
+*   **Flexible Scheduling:** Support for daily, weekly, or specific interval dosing.
+
+#### 2. Advanced Stock Management
+Clara doesn't just remind you to take your pills; it knows when you're running low.
+*   **Pill Counting:** Tracks the number of pills remaining in the physical box vs. the total supply.
+*   **Low Stock Alerts:** Customizable thresholds (e.g., "Remind me when I have 5 days left") to ensure refills are ordered on time.
+
+#### 3. Sophisticated Notifications
+Configurable alerts designed to be persistent yet non-intrusive.
+*   **Push Notifications:** Timely mobile alerts via Firebase Cloud Messaging.
+*   **Hardware Alerts:** Alarm-like sounds and LED indicators on the Clara pillbox itself.
+*   **Delayed Reminders:** Intelligent re-notifications for missed doses to prevent "notification fatigue" while ensuring compliance.
+
+---
+*This document serves as the primary vision for the Clara project. For technical implementation details, please refer to [BLUEPRINT.md](BLUEPRINT.md).*
