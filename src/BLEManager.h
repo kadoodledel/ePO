@@ -41,7 +41,7 @@ public:
      * @brief Processed received data from BLE client.
      * Called by BLEManagerCallbacks.
      */
-    void handleReceivedData(String data);
+    void handleReceivedData(const String& data);
 
     // Callbacks for application logic
     void setOnTimeReceived(void (*callback)(unsigned long)) { _onTimeReceived = callback; }
