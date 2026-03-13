@@ -46,7 +46,7 @@ void BLEManager::begin() {
     BLEDevice::startAdvertising();
 }
 
-void BLEManager::sendNotification(String message) {
+void BLEManager::sendNotification(const String& message) {
     if (_deviceConnected && _pCharacteristic) {
         _pCharacteristic->setValue(message.c_str());
         _pCharacteristic->notify();
