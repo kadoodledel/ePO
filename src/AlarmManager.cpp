@@ -60,10 +60,6 @@ bool AlarmManager::isAlarmTime(int currentHour, int currentMinute) {
             _alarmTriggeredToday = true;
             return true;
         }
-    } else {
-        // If it's no longer the alarm minute, we could potentially reset the flag
-        // but for a once-a-day alarm, resetting at midnight is safer.
-        // If we want to allow multiple alarms or snooze, this logic would be more complex.
     }
 
     return false;
