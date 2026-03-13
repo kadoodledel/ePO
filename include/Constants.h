@@ -26,9 +26,15 @@
 #define ALARM_CHECK_INTERVAL 1000   // ms
 #define BLINK_INTERVAL      500     // ms
 
+// --- Default Logic Settings ---
+#define DEFAULT_ALARM_DURATION    30      // seconds
+#define DEFAULT_REMINDER_INTERVAL 10      // minutes
+
 // --- Persistence Keys ---
 #define PREF_NAMESPACE      "epo_storage"
 #define PREF_ALARM_HOUR     "alarm_h"
 #define PREF_ALARM_MINUTE   "alarm_m"
+#define PREF_ALARM_DURATION "alarm_dur"
+#define PREF_REMINDER_INT   "rem_int"
 
 #endif // CONSTANTS_H

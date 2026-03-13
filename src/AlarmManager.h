@@ -26,6 +26,9 @@ public:
      */
     void setAlarm(int hour, int minute);
 
+    void setAlarmDuration(int seconds);
+    void setReminderInterval(int minutes);
+
     /**
      * @brief Checks if an alarm should be triggered now.
      * @param currentHour Current hour from RTC.
@@ -34,13 +37,26 @@ public:
      */
     bool isAlarmTime(int currentHour, int currentMinute);
 
+    /**
+     * @brief Calculates seconds until the next occurrence of the alarm.
+     * @param currentHour Current hour.
+     * @param currentMinute Current minute.
+     * @param currentSecond Current second.
+     * @return Seconds until next alarm.
+     */
+    long getSecondsUntilNextAlarm(int currentHour, int currentMinute, int currentSecond);
+
     int getAlarmHour() { return _alarmHour; }
     int getAlarmMinute() { return _alarmMinute; }
+    int getAlarmDuration() { return _alarmDuration; }
+    int getReminderInterval() { return _reminderInterval; }
 
 private:
     Preferences _prefs;
     int _alarmHour;
     int _alarmMinute;
+    int _alarmDuration;
+    int _reminderInterval;
     bool _alarmTriggeredToday;
     int _lastCheckedMinute;
 };
