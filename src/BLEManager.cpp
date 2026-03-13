@@ -11,7 +11,7 @@
 void BLEManagerCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     if (value.length() > 0) {
-        _manager->handleReceivedData(String(value.c_str()));
+        _manager->handleReceivedData(value.c_str());
     }
 }
 
@@ -55,13 +55,13 @@ void BLEManager::begin() {
 
 void BLEManager::sendNotification(const String& message) {
     if (_deviceConnected && _pCharacteristic) {
-        _pCharacteristic->setValue(message.c_str());
+        _pCharacteristic->setValue(message);
         _pCharacteristic->notify();
     }
 }
 
-void BLEManager::handleReceivedData(const String& data) {
-    const char* ptr = data.c_str();
+void BLEManager::handleReceivedData(const char* data) {
+    const char* ptr = data;
     // Skip leading whitespace (similar to trim but without modifying the string or copying)
     while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\r') {
         ptr++;
