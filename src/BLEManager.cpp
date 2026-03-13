@@ -5,6 +5,7 @@
  */
 
 #include "BLEManager.h"
+#include <cstdlib>
 
 void BLEManagerCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
     std::string value = pCharacteristic->getValue();
@@ -52,33 +53,38 @@ void BLEManager::sendNotification(String message) {
     }
 }
 
-void BLEManager::handleReceivedData(String data) {
-    data.trim();
-    if (data.startsWith("T")) {
+void BLEManager::handleReceivedData(const String& data) {
+    const char* ptr = data.c_str();
+    // Skip leading whitespace (similar to trim but without modifying the string or copying)
+    while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\r') {
+        ptr++;
+    }
+
+    if (*ptr == 'T') {
         // Time synchronization: T1672531200
-        unsigned long epoch = data.substring(1).toInt();
+        unsigned long epoch = strtoul(ptr + 1, nullptr, 10);
         if (epoch > 0 && _onTimeReceived) {
             _onTimeReceived(epoch);
         }
-    } else if (data.startsWith("A")) {
+    } else if (*ptr == 'A') {
         // Alarm setting: A08:30 or A8:30
-        int colonIndex = data.indexOf(':');
-        if (colonIndex != -1) {
-            int hour = data.substring(1, colonIndex).toInt();
-            int minute = data.substring(colonIndex + 1).toInt();
+        char* endptr;
+        int hour = (int)strtol(ptr + 1, &endptr, 10);
+        if (*endptr == ':') {
+            int minute = (int)strtol(endptr + 1, nullptr, 10);
             if (_onAlarmReceived) {
                 _onAlarmReceived(hour, minute);
             }
         }
-    } else if (data.startsWith("D")) {
+    } else if (*ptr == 'D') {
         // Duration setting: D60
-        int duration = data.substring(1).toInt();
+        int duration = (int)strtol(ptr + 1, nullptr, 10);
         if (_onDurationReceived) {
             _onDurationReceived(duration);
         }
-    } else if (data.startsWith("R")) {
+    } else if (*ptr == 'R') {
         // Reminder Interval setting: R15
-        int interval = data.substring(1).toInt();
+        int interval = (int)strtol(ptr + 1, nullptr, 10);
         if (_onReminderReceived) {
             _onReminderReceived(interval);
         }
