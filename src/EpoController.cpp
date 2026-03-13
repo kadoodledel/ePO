@@ -14,7 +14,7 @@ RTC_DATA_ATTR int bootLastTriggeredMinute = -1;
 
 EpoController::EpoController()
     : _state(SystemState::IDLE),
-      _lastBlinkTime(0), _alertStartTime(0),
+      _lastBlinkTime(0), _alertStartTime(0), _alertStopTime(0),
       _isReReminder(false), _intakeSuccess(false) {
     _instance = this;
 }
@@ -37,8 +37,13 @@ void EpoController::begin() {
         startAlert(_isReReminder);
     } else if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0 || wakeup_reason == ESP_SLEEP_WAKEUP_TOUCHPAD) {
         // Wakeup by interaction (Reed or Touch)
-        // Check for intake success even if not currently in ALERT state (user might have interacted early)
-        _state = SystemState::IDLE;
+        if (bootIsReReminder) {
+            // We woke up while waiting for a reminder, so we should be in WAITING_FOR_RETRY state
+            _state = SystemState::WAITING_FOR_RETRY;
+            _alertStopTime = millis(); // Approximate, since we were in deep sleep
+        } else {
+            _state = SystemState::IDLE;
+        }
     }
 }
 
@@ -87,11 +92,8 @@ void EpoController::handleAlertState() {
         _hw.toggleAlertPeripherals();
     }
 
-    // Verification: Intake confirmed if isTouched() AND !isReedClosed()
-    if (_hw.isTouched() && !_hw.isReedClosed()) {
-        _intakeSuccess = true;
-        _ble.sendNotification("INTAKE_CONFIRMED");
-        stopAlert();
+    // Verification
+    if (checkIntake()) {
         return;
     }
 
@@ -99,11 +101,23 @@ void EpoController::handleAlertState() {
     if (millis() - _alertStartTime > (unsigned long)_alarm.getAlarmDuration() * 1000) {
         _ble.sendNotification("ALARM_TIMEOUT");
         _state = SystemState::WAITING_FOR_RETRY;
+        _alertStopTime = millis();
         _hw.setAlertState(false);
     }
 }
 
 void EpoController::handleWaitingForRetryState() {
+    // Still allow intake confirmation during snooze
+    if (checkIntake()) {
+        return;
+    }
+
+    // Check if it's time for re-reminder
+    if (millis() - _alertStopTime > (unsigned long)_alarm.getReminderInterval() * 60000) {
+        startAlert(true);
+        return;
+    }
+
     // If not connected to BLE, go to sleep and wait for reminder
     if (!_ble.isConnected()) {
         enterDeepSleep();
@@ -135,6 +149,17 @@ void EpoController::stopAlert() {
         _ble.sendNotification("INTAKE_SUCCESS");
         bootIsReReminder = false; // Reset for next day
     }
+}
+
+bool EpoController::checkIntake() {
+    // Verification: Intake confirmed if isTouched() AND !isReedClosed() (box open)
+    if (_hw.isTouched() && !_hw.isReedClosed()) {
+        _intakeSuccess = true;
+        _ble.sendNotification("INTAKE_CONFIRMED");
+        stopAlert();
+        return true;
+    }
+    return false;
 }
 
 void EpoController::enterDeepSleep() {

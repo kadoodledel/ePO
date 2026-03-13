@@ -39,6 +39,7 @@ private:
     void startAlert(bool isReReminder);
     void stopAlert();
     void enterDeepSleep();
+    bool checkIntake();
 
     HardwareManager _hw;
     TimeManager _time;
@@ -48,6 +49,7 @@ private:
     SystemState _state;
     unsigned long _lastBlinkTime;
     unsigned long _alertStartTime;
+    unsigned long _alertStopTime;
 
     bool _isReReminder;
     bool _intakeSuccess;
