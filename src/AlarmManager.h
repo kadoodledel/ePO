@@ -4,8 +4,8 @@
  * @author Jules
  */
 
-#ifndef ALARM_MANAGER_H
-#define ALARM_MANAGER_H
+#ifndef ALARMMANAGER_H
+#define ALARMMANAGER_H
 
 #include <Preferences.h>
 #include "Constants.h"
@@ -61,4 +61,4 @@ private:
     int _lastCheckedMinute;
 };
 
-#endif // ALARM_MANAGER_H
+#endif // ALARMMANAGER_H
