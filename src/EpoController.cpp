@@ -178,8 +178,10 @@ void EpoController::enterDeepSleep() {
     if (sleepSeconds > 0) {
         esp_sleep_enable_timer_wakeup(sleepSeconds * 1000000ULL);
         _hw.setupSleepWakeup();
-        _ble.sendNotification("ENTERING_SLEEP");
-        delay(100); // Give some time for BLE notification to be sent
+        if (_ble.isConnected()) {
+            _ble.sendNotification("ENTERING_SLEEP");
+            delay(100); // Give some time for BLE notification to be sent
+        }
         esp_deep_sleep_start();
     }
 }
