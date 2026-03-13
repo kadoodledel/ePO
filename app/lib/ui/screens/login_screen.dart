@@ -18,10 +18,27 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+    } on FirebaseAuthException catch (e) {
+      String message = "An error occurred. Please try again.";
+      if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        message = "Invalid email or password.";
+      } else if (e.code == 'invalid-email') {
+        message = "The email address is badly formatted.";
+      } else if (e.code == 'user-disabled') {
+        message = "This user account has been disabled.";
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("An unexpected error occurred.")),
+        );
+      }
     }
   }
 
