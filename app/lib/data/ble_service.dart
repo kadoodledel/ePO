@@ -41,10 +41,13 @@ class BLEService {
 
   Future<void> _onConnected(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
+    final serviceUuidLower = serviceUuid.toLowerCase();
+    final characteristicUuidLower = characteristicUuid.toLowerCase();
+
     for (var service in services) {
-      if (service.uuid.toString().toLowerCase() == serviceUuid.toLowerCase()) {
+      if (service.uuid.toString().toLowerCase() == serviceUuidLower) {
         for (var characteristic in service.characteristics) {
-          if (characteristic.uuid.toString().toLowerCase() == characteristicUuid.toLowerCase()) {
+          if (characteristic.uuid.toString().toLowerCase() == characteristicUuidLower) {
             _mainCharacteristic = characteristic;
 
             // Enable notifications
