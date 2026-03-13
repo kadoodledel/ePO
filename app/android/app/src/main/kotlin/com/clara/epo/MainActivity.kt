@@ -1,4 +1,4 @@
-package com.example.epo_app
+package com.clara.epo
 
 import io.flutter.embedding.android.FlutterActivity
 
