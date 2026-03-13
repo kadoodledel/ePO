@@ -20,12 +20,29 @@ class AppState extends ChangeNotifier {
     });
 
     bleService.notifications.listen((message) {
-      if (message == "INTAKE_CONFIRMED" || message == "ALARM_START") {
-        // TODO: Implement multi-slot support.
-        // For the prototype, we assume the first medication is the one being tracked.
-        // In a real scenario, we'd have a way to identify which med is in which slot.
-        String? medId = medications.isNotEmpty ? medications.first.id : null;
-        medicationRepository.logIntake(message, medicationId: medId);
+      if (message.startsWith("INTAKE_CONFIRMED") || message.startsWith("ALARM_START")) {
+        String? medId;
+
+        if (medications.isNotEmpty) {
+          // Parse slot index if available, e.g. "INTAKE_CONFIRMED:1"
+          int slotIndex = 0; // Default to the first slot for the prototype
+
+          if (message.contains(":")) {
+            final parts = message.split(":");
+            if (parts.length > 1) {
+              final parsedIndex = int.tryParse(parts[1]);
+              if (parsedIndex != null && parsedIndex >= 0 && parsedIndex < medications.length) {
+                slotIndex = parsedIndex;
+              }
+            }
+          }
+
+          medId = medications[slotIndex].id;
+        }
+
+        // Use the base event name without the slot suffix for logging
+        String baseEvent = message.contains(":") ? message.split(":")[0] : message;
+        medicationRepository.logIntake(baseEvent, medicationId: medId);
       }
     });
 
