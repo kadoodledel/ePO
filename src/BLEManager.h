@@ -46,6 +46,8 @@ public:
     // Callbacks for application logic
     void setOnTimeReceived(void (*callback)(unsigned long)) { _onTimeReceived = callback; }
     void setOnAlarmReceived(void (*callback)(int, int)) { _onAlarmReceived = callback; }
+    void setOnDurationReceived(void (*callback)(int)) { _onDurationReceived = callback; }
+    void setOnReminderReceived(void (*callback)(int)) { _onReminderReceived = callback; }
 
     bool isConnected() { return _deviceConnected; }
 
@@ -56,6 +58,8 @@ private:
 
     void (*_onTimeReceived)(unsigned long);
     void (*_onAlarmReceived)(int, int);
+    void (*_onDurationReceived)(int);
+    void (*_onReminderReceived)(int);
 
     friend class BLEServerCallbacks;
     class MyServerCallbacks : public BLEServerCallbacks {

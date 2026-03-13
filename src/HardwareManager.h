@@ -54,6 +54,11 @@ public:
      */
     void toggleAlertPeripherals();
 
+    /**
+     * @brief Configures deep sleep wake-up sources.
+     */
+    void setupSleepWakeup();
+
 private:
     bool _lastReedState;
     bool _currentReedState;

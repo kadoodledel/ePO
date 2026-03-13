@@ -8,12 +8,16 @@
 
 AlarmManager::AlarmManager()
     : _alarmHour(-1), _alarmMinute(-1),
+      _alarmDuration(DEFAULT_ALARM_DURATION),
+      _reminderInterval(DEFAULT_REMINDER_INTERVAL),
       _alarmTriggeredToday(false), _lastCheckedMinute(-1) {}
 
 void AlarmManager::begin() {
     _prefs.begin(PREF_NAMESPACE, false);
     _alarmHour = _prefs.getInt(PREF_ALARM_HOUR, -1);
     _alarmMinute = _prefs.getInt(PREF_ALARM_MINUTE, -1);
+    _alarmDuration = _prefs.getInt(PREF_ALARM_DURATION, DEFAULT_ALARM_DURATION);
+    _reminderInterval = _prefs.getInt(PREF_REMINDER_INT, DEFAULT_REMINDER_INTERVAL);
 }
 
 void AlarmManager::setAlarm(int hour, int minute) {
@@ -23,6 +27,20 @@ void AlarmManager::setAlarm(int hour, int minute) {
         _prefs.putInt(PREF_ALARM_HOUR, _alarmHour);
         _prefs.putInt(PREF_ALARM_MINUTE, _alarmMinute);
         _alarmTriggeredToday = false; // Reset when new alarm is set
+    }
+}
+
+void AlarmManager::setAlarmDuration(int seconds) {
+    if (seconds > 0) {
+        _alarmDuration = seconds;
+        _prefs.putInt(PREF_ALARM_DURATION, _alarmDuration);
+    }
+}
+
+void AlarmManager::setReminderInterval(int minutes) {
+    if (minutes > 0) {
+        _reminderInterval = minutes;
+        _prefs.putInt(PREF_REMINDER_INT, _reminderInterval);
     }
 }
 
@@ -49,4 +67,19 @@ bool AlarmManager::isAlarmTime(int currentHour, int currentMinute) {
     }
 
     return false;
+}
+
+long AlarmManager::getSecondsUntilNextAlarm(int currentHour, int currentMinute, int currentSecond) {
+    if (_alarmHour == -1 || _alarmMinute == -1) return -1;
+
+    long currentSecondsSinceMidnight = (long)currentHour * 3600 + (long)currentMinute * 60 + currentSecond;
+    long alarmSecondsSinceMidnight = (long)_alarmHour * 3600 + (long)_alarmMinute * 60;
+
+    long diff = alarmSecondsSinceMidnight - currentSecondsSinceMidnight;
+    if (diff <= 0) {
+        // Alarm is tomorrow
+        diff += 24 * 3600;
+    }
+
+    return diff;
 }

@@ -15,7 +15,7 @@
 enum class SystemState {
     IDLE,
     ALERT,
-    SNOOZED
+    WAITING_FOR_RETRY
 };
 
 class EpoController {
@@ -28,15 +28,17 @@ public:
     // Callbacks for BLE actions
     static void onTimeSync(unsigned long epoch);
     static void onAlarmSet(int hour, int minute);
+    static void onDurationSet(int seconds);
+    static void onReminderSet(int minutes);
 
 private:
     void handleIdleState();
     void handleAlertState();
-    void handleSnoozedState();
+    void handleWaitingForRetryState();
 
-    void startAlert();
+    void startAlert(bool isReReminder);
     void stopAlert();
-    void snoozeAlert();
+    void enterDeepSleep();
 
     HardwareManager _hw;
     TimeManager _time;
@@ -44,9 +46,11 @@ private:
     BLEManager _ble;
 
     SystemState _state;
-    unsigned long _lastAlarmCheck;
     unsigned long _lastBlinkTime;
-    unsigned long _snoozeStartTime;
+    unsigned long _alertStartTime;
+
+    bool _isReReminder;
+    bool _intakeSuccess;
 
     static EpoController* _instance;
 };
