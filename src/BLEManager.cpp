@@ -53,7 +53,7 @@ void BLEManager::begin() {
     pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
 }
 
-void BLEManager::sendNotification(String message) {
+void BLEManager::sendNotification(const String& message) {
     if (_deviceConnected && _pCharacteristic) {
         _pCharacteristic->setValue(message.c_str());
         _pCharacteristic->notify();
