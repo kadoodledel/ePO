@@ -2,63 +2,86 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epo_app/data/models/medication.dart';
 
 void main() {
-  group('Medication.copyWith', () {
-    late Medication originalMedication;
+  group('Medication Model Tests', () {
+    final tMedication = Medication(
+      id: 'med-123',
+      name: 'Amoxicillin',
+      dosage: '500mg',
+      stockCount: 30,
+      scheduleHours: [8, 20],
+      scheduleMinutes: [0, 30],
+    );
 
-    setUp(() {
-      originalMedication = Medication(
-        id: '1',
-        name: 'Aspirin',
-        dosage: '100mg',
-        stockCount: 30,
-        scheduleHours: [8, 20],
-        scheduleMinutes: [0, 30],
-      );
+    test('toMap should return a valid map representation', () {
+      final result = tMedication.toMap();
+
+      final expectedMap = {
+        'name': 'Amoxicillin',
+        'dosage': '500mg',
+        'stockCount': 30,
+        'scheduleHours': [8, 20],
+        'scheduleMinutes': [0, 30],
+      };
+
+      expect(result, expectedMap);
     });
 
-    test('should return a new object with the same values when no arguments are provided', () {
-      final copy = originalMedication.copyWith();
+    test('fromMap should return a valid Medication object', () {
+      final map = {
+        'name': 'Amoxicillin',
+        'dosage': '500mg',
+        'stockCount': 30,
+        'scheduleHours': [8, 20],
+        'scheduleMinutes': [0, 30],
+      };
 
-      expect(copy.id, originalMedication.id);
-      expect(copy.name, originalMedication.name);
-      expect(copy.dosage, originalMedication.dosage);
-      expect(copy.stockCount, originalMedication.stockCount);
-      expect(copy.scheduleHours, originalMedication.scheduleHours);
-      expect(copy.scheduleMinutes, originalMedication.scheduleMinutes);
-      // It should be a different instance if possible, though copyWith usually returns a new instance
-      expect(identical(copy, originalMedication), isFalse);
+      final result = Medication.fromMap('med-123', map);
+
+      expect(result.id, 'med-123');
+      expect(result.name, 'Amoxicillin');
+      expect(result.dosage, '500mg');
+      expect(result.stockCount, 30);
+      expect(result.scheduleHours, [8, 20]);
+      expect(result.scheduleMinutes, [0, 30]);
     });
 
-    test('should return a new object with updated values when specific arguments are provided', () {
-      final copy = originalMedication.copyWith(
+    test('fromMap should handle missing or null fields gracefully', () {
+      final map = <String, dynamic>{};
+
+      final result = Medication.fromMap('med-456', map);
+
+      expect(result.id, 'med-456');
+      expect(result.name, '');
+      expect(result.dosage, '');
+      expect(result.stockCount, 0);
+      expect(result.scheduleHours, []);
+      expect(result.scheduleMinutes, []);
+    });
+
+    test('fromMap should handle null lists gracefully', () {
+      final map = <String, dynamic>{
+        'scheduleHours': null,
+        'scheduleMinutes': null,
+      };
+
+      final result = Medication.fromMap('med-456', map);
+
+      expect(result.scheduleHours, []);
+      expect(result.scheduleMinutes, []);
+    });
+
+    test('copyWith should return a new object with updated properties', () {
+      final result = tMedication.copyWith(
         name: 'Ibuprofen',
-        stockCount: 50,
+        stockCount: 15,
       );
 
-      expect(copy.id, originalMedication.id);
-      expect(copy.name, 'Ibuprofen');
-      expect(copy.dosage, originalMedication.dosage);
-      expect(copy.stockCount, 50);
-      expect(copy.scheduleHours, originalMedication.scheduleHours);
-      expect(copy.scheduleMinutes, originalMedication.scheduleMinutes);
-    });
-
-    test('should return a new object with all values updated when all arguments are provided', () {
-      final copy = originalMedication.copyWith(
-        id: '2',
-        name: 'Tylenol',
-        dosage: '500mg',
-        stockCount: 100,
-        scheduleHours: [9],
-        scheduleMinutes: [15],
-      );
-
-      expect(copy.id, '2');
-      expect(copy.name, 'Tylenol');
-      expect(copy.dosage, '500mg');
-      expect(copy.stockCount, 100);
-      expect(copy.scheduleHours, [9]);
-      expect(copy.scheduleMinutes, [15]);
+      expect(result.id, 'med-123'); // Unchanged
+      expect(result.name, 'Ibuprofen'); // Changed
+      expect(result.dosage, '500mg'); // Unchanged
+      expect(result.stockCount, 15); // Changed
+      expect(result.scheduleHours, [8, 20]); // Unchanged
+      expect(result.scheduleMinutes, [0, 30]); // Unchanged
     });
   });
 }
