@@ -86,14 +86,18 @@ void BLEManager::handleReceivedData(const String& data) {
     } else if (*ptr == 'D') {
         // Duration setting: D60
         int duration = (int)strtol(ptr + 1, nullptr, 10);
-        if (_onDurationReceived) {
-            _onDurationReceived(duration);
+        if (duration >= 1 && duration <= 3600) {
+            if (_onDurationReceived) {
+                _onDurationReceived(duration);
+            }
         }
     } else if (*ptr == 'R') {
         // Reminder Interval setting: R15
         int interval = (int)strtol(ptr + 1, nullptr, 10);
-        if (_onReminderReceived) {
-            _onReminderReceived(interval);
+        if (interval >= 1 && interval <= 1440) {
+            if (_onReminderReceived) {
+                _onReminderReceived(interval);
+            }
         }
     }
 }
