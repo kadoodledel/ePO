@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:epo_app/ui/app_state.dart';
+import 'package:epo_app/ui/screens/medication_edit_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +26,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
+            ListTile(
+              title: const Text("Manage Medications"),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MedicationListScreen(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
             const Text("Alarm Time (HH:MM)"),
             Row(
               children: [
@@ -76,6 +90,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MedicationListScreen extends StatelessWidget {
+  const MedicationListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("My Medications"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MedicationEditScreen()),
+            ),
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        itemCount: appState.medications.length,
+        itemBuilder: (context, index) {
+          final med = appState.medications[index];
+          return ListTile(
+            title: Text(med.name),
+            subtitle: Text("Dosage: ${med.dosage} | Stock: ${med.stockCount}"),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MedicationEditScreen(medication: med)),
+            ),
+          );
+        },
       ),
     );
   }
