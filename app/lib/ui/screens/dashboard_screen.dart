@@ -46,6 +46,8 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildDateHeader() {
     final now = DateTime.now();
     final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
@@ -60,9 +62,12 @@ class DashboardScreen extends StatelessWidget {
             children: List.generate(7, (index) {
               // Simple weekly view placeholder
               bool isToday = index == (now.weekday - 1);
+              final dayDate = startOfWeek.add(Duration(days: index));
+
               return Column(
                 children: [
-                  Text(days[index], style: TextStyle(fontSize: 12, color: isToday ? Colors.blue : Colors.grey)),
+                  Text(days[index],
+                      style: TextStyle(fontSize: 12, color: isToday ? Colors.blue : Colors.grey)),
                   const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.all(8),
@@ -71,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Text(
-                      "${now.subtract(Duration(days: now.weekday - 1 - index)).day}",
+                      "${dayDate.day}",
                       style: TextStyle(color: isToday ? Colors.white : Colors.black),
                     ),
                   ),
