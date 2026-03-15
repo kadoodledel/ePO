@@ -17,6 +17,7 @@ class Medication {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'dosage': dosage,
       'stockCount': stockCount,
@@ -25,14 +26,14 @@ class Medication {
     };
   }
 
-  factory Medication.fromMap(String id, Map<String, dynamic> map) {
+  factory Medication.fromMap(Map<String, dynamic> map) {
     return Medication(
-      id: id,
-      name: map['name'] ?? '',
-      dosage: map['dosage'] ?? '',
-      stockCount: map['stockCount'] ?? 0,
-      scheduleHours: List<int>.from(map['scheduleHours'] ?? []),
-      scheduleMinutes: List<int>.from(map['scheduleMinutes'] ?? []),
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      dosage: map['dosage'] as String? ?? '',
+      stockCount: map['stockCount'] as int? ?? 0,
+      scheduleHours: List<int>.from(map['scheduleHours'] as List? ?? []),
+      scheduleMinutes: List<int>.from(map['scheduleMinutes'] as List? ?? []),
     );
   }
 

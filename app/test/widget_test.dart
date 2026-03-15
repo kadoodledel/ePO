@@ -13,6 +13,6 @@ import 'package:epo_app/main.dart';
 void main() {
   testWidgets('Smoke test', (WidgetTester tester) async {
     // Just a basic check that the app can be pumped.
-    // Since Firebase and BLE are used, full widget tests might need mocking.
+    // Since BLE is used, full widget tests might need mocking.
   });
 }
