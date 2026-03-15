@@ -171,7 +171,7 @@ void EpoController::enterDeepSleep() {
         bootIsReReminder = true;
     } else {
         // Next wake up is for regular alarm
-        sleepSeconds = _alarm.getSecondsUntilNextAlarm(_time.getHour(), _time.getMinute(), 0); // approx
+        sleepSeconds = _alarm.getSecondsUntilNextAlarm(_time.getHour(), _time.getMinute(), _time.getSecond());
         bootIsReReminder = false;
     }
 

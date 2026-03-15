@@ -11,6 +11,8 @@ class BLEService {
   BluetoothCharacteristic? _mainCharacteristic;
   StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
   StreamSubscription<List<int>>? _notificationSubscription;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 3;
 
   final _connectionController = StreamController<BluetoothConnectionState>.broadcast();
   Stream<BluetoothConnectionState> get connectionState => _connectionController.stream;
@@ -33,11 +35,25 @@ class BLEService {
     _connectionSubscription = device.connectionState.listen((state) {
       _connectionController.add(state);
       if (state == BluetoothConnectionState.connected) {
+        _reconnectAttempts = 0;
         _onConnected(device);
+      } else if (state == BluetoothConnectionState.disconnected && _connectedDevice != null) {
+        _scheduleReconnect(device);
       }
     });
 
     await device.connect();
+  }
+
+  void _scheduleReconnect(BluetoothDevice device) {
+    if (_reconnectAttempts >= _maxReconnectAttempts) return;
+    _reconnectAttempts++;
+    final delaySeconds = 3 * (1 << (_reconnectAttempts - 1)); // 3s, 6s, 12s
+    Future.delayed(Duration(seconds: delaySeconds), () async {
+      if (_connectedDevice != null) {
+        await device.connect();
+      }
+    });
   }
 
   Future<void> _onConnected(BluetoothDevice device) async {
@@ -105,6 +121,7 @@ class BLEService {
   }
 
   Future<void> disconnect() async {
+    _reconnectAttempts = _maxReconnectAttempts; // Prevent auto-reconnect on manual disconnect
     await _connectedDevice?.disconnect();
     _connectedDevice = null;
     _mainCharacteristic = null;

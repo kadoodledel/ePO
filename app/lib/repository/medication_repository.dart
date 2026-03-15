@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:epo_app/data/models/medication.dart';
 
 class MedicationRepository {
-  // In-memory storage for prototype
+  static const String _medsKey = 'medications';
+
+  late SharedPreferences _prefs;
   final List<Medication> _medications = [];
   final StreamController<List<Medication>> _medsController = StreamController<List<Medication>>.broadcast();
 
@@ -10,17 +14,44 @@ class MedicationRepository {
   final Map<String, dynamic> _settings = {};
   final StreamController<Map<String, dynamic>> _settingsController = StreamController<Map<String, dynamic>>.broadcast();
 
-  MedicationRepository() {
-    // Seed with a sample medication for testing if empty
-    _medications.add(Medication(
-      id: '1',
-      name: 'Example Med',
-      dosage: '10mg',
-      stockCount: 10,
-      scheduleHours: [8],
-      scheduleMinutes: [0],
-    ));
+  /// Must be called once before using the repository.
+  Future<void> initialize() async {
+    _prefs = await SharedPreferences.getInstance();
+    _loadFromPrefs();
+  }
+
+  void _loadFromPrefs() {
+    final raw = _prefs.getString(_medsKey);
+    _medications.clear();
+    if (raw != null) {
+      final List<dynamic> decoded = jsonDecode(raw);
+      for (final entry in decoded) {
+        final map = Map<String, dynamic>.from(entry);
+        final id = map['id'] as String;
+        _medications.add(Medication.fromMap(id, map));
+      }
+    } else {
+      // First launch — seed with example medication
+      _medications.add(Medication(
+        id: '1',
+        name: 'Example Med',
+        dosage: '10mg',
+        stockCount: 10,
+        scheduleHours: [8],
+        scheduleMinutes: [0],
+      ));
+      _saveToPrefs();
+    }
     _medsController.add(List.unmodifiable(_medications));
+  }
+
+  void _saveToPrefs() {
+    final List<Map<String, dynamic>> data = _medications.map((m) {
+      final map = m.toMap();
+      map['id'] = m.id;
+      return map;
+    }).toList();
+    _prefs.setString(_medsKey, jsonEncode(data));
   }
 
   Future<void> logIntake(String event, {String? medicationId}) async {
@@ -32,6 +63,7 @@ class MedicationRepository {
         _medications[index] = _medications[index].copyWith(
           stockCount: _medications[index].stockCount - 1,
         );
+        _saveToPrefs();
         _medsController.add(List.unmodifiable(_medications));
       }
     }
@@ -40,6 +72,7 @@ class MedicationRepository {
   Future<void> addMedication(Medication medication) async {
     final newMed = medication.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString());
     _medications.add(newMed);
+    _saveToPrefs();
     _medsController.add(List.unmodifiable(_medications));
   }
 
@@ -47,6 +80,7 @@ class MedicationRepository {
     int index = _medications.indexWhere((m) => m.id == medication.id);
     if (index != -1) {
       _medications[index] = medication;
+      _saveToPrefs();
       _medsController.add(List.unmodifiable(_medications));
     }
   }

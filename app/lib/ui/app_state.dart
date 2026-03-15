@@ -11,6 +11,7 @@ class AppState extends ChangeNotifier {
 
   BluetoothConnectionState connectionState = BluetoothConnectionState.disconnected;
   List<Medication> medications = [];
+  bool alarmActive = false;
   StreamSubscription? _medsSubscription;
 
   AppState(this.bleService, this.medicationRepository) {
@@ -20,10 +21,15 @@ class AppState extends ChangeNotifier {
     });
 
     bleService.notifications.listen((message) {
-      if (message == "INTAKE_CONFIRMED" || message == "ALARM_START") {
+      if (message == "ALARM_START") {
+        // Alarm has started — notify the UI, but do not log an intake yet.
+        alarmActive = true;
+        notifyListeners();
+      } else if (message == "INTAKE_CONFIRMED") {
         // TODO: Implement multi-slot support.
         // For the prototype, we assume the first medication is the one being tracked.
         // In a real scenario, we'd have a way to identify which med is in which slot.
+        alarmActive = false;
         String? medId = medications.isNotEmpty ? medications.first.id : null;
         medicationRepository.logIntake(message, medicationId: medId);
       }

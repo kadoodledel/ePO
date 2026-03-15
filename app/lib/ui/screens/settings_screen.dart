@@ -51,11 +51,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 int? h = int.tryParse(_hourController.text);
                 int? m = int.tryParse(_minuteController.text);
-                if (h != null && m != null) {
+                if (h == null || h < 0 || h > 23) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Invalid hour: must be between 0 and 23")),
+                  );
+                } else if (m == null || m < 0 || m > 59) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Invalid minute: must be between 0 and 59")),
+                  );
+                } else {
                   appState.bleService.setAlarm(h, m);
                   appState.medicationRepository.updateSettings(alarmHour: h, alarmMinute: m);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid Time")));
                 }
               },
               child: const Text("Sync Alarm"),

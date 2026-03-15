@@ -68,6 +68,9 @@ private:
 
     bool _alertActive;
     bool _peripheralState;
+
+    bool _touchActive;
+    unsigned long _touchStartTime;
 };
 
 #endif // HARDWARE_MANAGER_H

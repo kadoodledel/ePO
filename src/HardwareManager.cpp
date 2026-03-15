@@ -9,7 +9,8 @@
 HardwareManager::HardwareManager()
     : _lastReedState(HIGH), _currentReedState(HIGH),
       _lastReedDebounceTime(0), _reedChanged(false),
-      _alertActive(false), _peripheralState(false) {}
+      _alertActive(false), _peripheralState(false),
+      _touchActive(false), _touchStartTime(0) {}
 
 void HardwareManager::begin() {
     pinMode(PIN_REED_SWITCH, INPUT_PULLUP);
@@ -56,7 +57,20 @@ bool HardwareManager::isReedClosed() {
 
 bool HardwareManager::isTouched() {
     // touchRead returns a value; lower values typically mean touch
-    return (touchRead(PIN_TOUCH_SENSOR) < TOUCH_THRESHOLD);
+    bool currentlyTouched = (touchRead(PIN_TOUCH_SENSOR) < TOUCH_THRESHOLD);
+
+    if (currentlyTouched) {
+        if (!_touchActive) {
+            // Touch just started — record start time
+            _touchActive = true;
+            _touchStartTime = millis();
+        }
+        // Only confirm touch after continuous hold of 200ms
+        return (millis() - _touchStartTime) >= 200;
+    } else {
+        _touchActive = false;
+        return false;
+    }
 }
 
 void HardwareManager::setAlertState(bool on) {

@@ -31,6 +31,11 @@ public:
     int getMinute();
 
     /**
+     * @brief Gets current second (0-59).
+     */
+    int getSecond();
+
+    /**
      * @brief Formats current time as string.
      */
     String getTimeString();
