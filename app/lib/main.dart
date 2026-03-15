@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:epo_app/data/ble_service.dart';
 import 'package:epo_app/repository/medication_repository.dart';
 import 'package:epo_app/ui/app_state.dart';
+import 'package:epo_app/ui/theme/theme.dart';
 import 'package:epo_app/ui/screens/dashboard_screen.dart';
+import 'package:epo_app/ui/screens/medication_list_screen.dart';
+import 'package:epo_app/ui/screens/medication_edit_screen.dart';
 import 'package:epo_app/ui/screens/settings_screen.dart';
 
 void main() async {
@@ -29,15 +32,14 @@ class EpoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ePO Smart Pill Box',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: const DashboardScreen(),
+      title: 'Clara',
+      theme: ClaraTheme.light(),
+      initialRoute: '/',
       routes: {
-        '/dashboard': (context) => const DashboardScreen(),
-        '/settings': (context) => const SettingsScreen(),
+        '/': (_) => const DashboardScreen(),
+        '/meds': (_) => const MedicationListScreen(),
+        '/meds/edit': (_) => const MedicationEditScreen(),
+        '/settings': (_) => const SettingsScreen(),
       },
     );
   }
