@@ -15,9 +15,9 @@ class MedicationRepository {
   final StreamController<Map<String, dynamic>> _settingsController =
       StreamController<Map<String, dynamic>>.broadcast();
 
-  MedicationRepository() {
-    _loadFromDisk();
-  }
+  MedicationRepository();
+
+  Future<void> initialize() => _loadFromDisk();
 
   // ---------------------------------------------------------------------------
   // Persistence helpers
