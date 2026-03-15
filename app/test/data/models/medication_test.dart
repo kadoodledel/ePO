@@ -16,6 +16,7 @@ void main() {
       final result = tMedication.toMap();
 
       final expectedMap = {
+        'id': 'med-123',
         'name': 'Amoxicillin',
         'dosage': '500mg',
         'stockCount': 30,
@@ -28,6 +29,7 @@ void main() {
 
     test('fromMap should return a valid Medication object', () {
       final map = {
+        'id': 'med-123',
         'name': 'Amoxicillin',
         'dosage': '500mg',
         'stockCount': 30,
@@ -35,7 +37,7 @@ void main() {
         'scheduleMinutes': [0, 30],
       };
 
-      final result = Medication.fromMap('med-123', map);
+      final result = Medication.fromMap(map);
 
       expect(result.id, 'med-123');
       expect(result.name, 'Amoxicillin');
@@ -46,9 +48,9 @@ void main() {
     });
 
     test('fromMap should handle missing or null fields gracefully', () {
-      final map = <String, dynamic>{};
+      final map = <String, dynamic>{'id': 'med-456'};
 
-      final result = Medication.fromMap('med-456', map);
+      final result = Medication.fromMap(map);
 
       expect(result.id, 'med-456');
       expect(result.name, '');
@@ -60,11 +62,12 @@ void main() {
 
     test('fromMap should handle null lists gracefully', () {
       final map = <String, dynamic>{
+        'id': 'med-456',
         'scheduleHours': null,
         'scheduleMinutes': null,
       };
 
-      final result = Medication.fromMap('med-456', map);
+      final result = Medication.fromMap(map);
 
       expect(result.scheduleHours, []);
       expect(result.scheduleMinutes, []);

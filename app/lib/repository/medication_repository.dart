@@ -1,35 +1,37 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:epo_app/data/models/medication.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MedicationRepository {
-  static const String _medsKey = 'medications';
+  static const _medsKey = 'medications';
+  static const _settingsKey = 'settings';
 
-  late SharedPreferences _prefs;
   final List<Medication> _medications = [];
-  final StreamController<List<Medication>> _medsController = StreamController<List<Medication>>.broadcast();
+  final StreamController<List<Medication>> _medsController =
+      StreamController<List<Medication>>.broadcast();
 
-  // Local settings storage
   final Map<String, dynamic> _settings = {};
-  final StreamController<Map<String, dynamic>> _settingsController = StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<Map<String, dynamic>> _settingsController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
-  /// Must be called once before using the repository.
-  Future<void> initialize() async {
-    _prefs = await SharedPreferences.getInstance();
-    _loadFromPrefs();
+  MedicationRepository() {
+    _loadFromDisk();
   }
 
-  void _loadFromPrefs() {
-    final raw = _prefs.getString(_medsKey);
-    _medications.clear();
-    if (raw != null) {
-      final List<dynamic> decoded = jsonDecode(raw);
-      for (final entry in decoded) {
-        final map = Map<String, dynamic>.from(entry);
-        final id = map['id'] as String;
-        _medications.add(Medication.fromMap(id, map));
-      }
+  // ---------------------------------------------------------------------------
+  // Persistence helpers
+  // ---------------------------------------------------------------------------
+
+  Future<void> _loadFromDisk() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final medsJson = prefs.getString(_medsKey);
+    if (medsJson != null) {
+      final List<dynamic> decoded = jsonDecode(medsJson) as List<dynamic>;
+      _medications.addAll(
+        decoded.map((e) => Medication.fromMap(e as Map<String, dynamic>)),
+      );
     } else {
       // First launch — seed with example medication
       _medications.add(Medication(
@@ -40,58 +42,81 @@ class MedicationRepository {
         scheduleHours: [8],
         scheduleMinutes: [0],
       ));
-      _saveToPrefs();
+      await _saveMeds(prefs);
     }
+
+    final settingsJson = prefs.getString(_settingsKey);
+    if (settingsJson != null) {
+      _settings.addAll(
+        Map<String, dynamic>.from(jsonDecode(settingsJson) as Map),
+      );
+    }
+
     _medsController.add(List.unmodifiable(_medications));
+    if (_settings.isNotEmpty) {
+      _settingsController.add(Map.unmodifiable(_settings));
+    }
   }
 
-  void _saveToPrefs() {
-    final List<Map<String, dynamic>> data = _medications.map((m) {
-      final map = m.toMap();
-      map['id'] = m.id;
-      return map;
-    }).toList();
-    _prefs.setString(_medsKey, jsonEncode(data));
+  Future<void> _saveMeds([SharedPreferences? prefs]) async {
+    final p = prefs ?? await SharedPreferences.getInstance();
+    await p.setString(
+      _medsKey,
+      jsonEncode(_medications.map((m) => m.toMap()).toList()),
+    );
   }
+
+  Future<void> _saveSettings([SharedPreferences? prefs]) async {
+    final p = prefs ?? await SharedPreferences.getInstance();
+    await p.setString(_settingsKey, jsonEncode(_settings));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Public API
+  // ---------------------------------------------------------------------------
 
   Future<void> logIntake(String event, {String? medicationId}) async {
-    print("Logging intake event: $event for medication: $medicationId");
-
-    if (event == "INTAKE_CONFIRMED" && medicationId != null) {
-      int index = _medications.indexWhere((m) => m.id == medicationId);
+    if (event == 'INTAKE_CONFIRMED' && medicationId != null) {
+      final index = _medications.indexWhere((m) => m.id == medicationId);
       if (index != -1) {
         _medications[index] = _medications[index].copyWith(
           stockCount: _medications[index].stockCount - 1,
         );
-        _saveToPrefs();
         _medsController.add(List.unmodifiable(_medications));
+        await _saveMeds();
       }
     }
   }
 
   Future<void> addMedication(Medication medication) async {
-    final newMed = medication.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString());
+    final newMed = medication.copyWith(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
     _medications.add(newMed);
-    _saveToPrefs();
     _medsController.add(List.unmodifiable(_medications));
+    await _saveMeds();
   }
 
   Future<void> updateMedication(Medication medication) async {
-    int index = _medications.indexWhere((m) => m.id == medication.id);
+    final index = _medications.indexWhere((m) => m.id == medication.id);
     if (index != -1) {
       _medications[index] = medication;
-      _saveToPrefs();
       _medsController.add(List.unmodifiable(_medications));
+      await _saveMeds();
     }
   }
 
   Stream<List<Medication>> getMedications() {
-    // Return a stream that emits current state then future updates
     Timer.run(() => _medsController.add(List.unmodifiable(_medications)));
     return _medsController.stream;
   }
 
-  Future<void> updateSettings({int? alarmHour, int? alarmMinute, int? duration, int? interval}) async {
+  Future<void> updateSettings({
+    int? alarmHour,
+    int? alarmMinute,
+    int? duration,
+    int? interval,
+  }) async {
     if (alarmHour != null) _settings['alarmHour'] = alarmHour;
     if (alarmMinute != null) _settings['alarmMinute'] = alarmMinute;
     if (duration != null) _settings['duration'] = duration;
@@ -99,6 +124,7 @@ class MedicationRepository {
 
     if (_settings.isNotEmpty) {
       _settingsController.add(Map.unmodifiable(_settings));
+      await _saveSettings();
     }
   }
 

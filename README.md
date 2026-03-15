@@ -25,7 +25,7 @@ ePO doesn’t just remind you to take your pills; it knows when you’re running
 
 #### 3. Sophisticated Notifications
 Configurable alerts designed to be persistent yet non-intrusive.
-*   **Push Notifications:** Timely mobile alerts via Firebase Cloud Messaging.
+*   **Local Notifications:** Timely on-device alerts via the system notification scheduler.
 *   **Hardware Alerts:** Alarm-like sounds and LED indicators on the ePO pillbox itself.
 *   **Delayed Reminders:** Intelligent re-notifications for missed doses to prevent "notification fatigue" while ensuring compliance.
 
