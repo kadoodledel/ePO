@@ -1,8 +1,8 @@
-# Clara: Technical Blueprint
+# ePO: Technical Blueprint
 
 ## Technical Architecture Overview
 
-Clara is built on a modern, event-driven architecture that bridges hardware and software through a cloud-based real-time database. The primary components are:
+ePO is built on a modern, event-driven architecture that bridges hardware and software through a cloud-based real-time database. The primary components are:
 
 *   **ESP32 Hardware:** Battery-powered microcontroller managing physical intake sensing and local alerts.
 *   **Flutter Mobile App:** Cross-platform application for user-facing schedule management and dose tracking.
@@ -74,7 +74,7 @@ For the prototype, the ESP32 communicates with the Flutter app exclusively via B
 1.  **Schedule Trigger:** A local hardware timer on the ESP32 identifies that a dose is due.
 2.  **Hardware Alert:** The ESP32 triggers a buzzer sound and LED blink.
 3.  **Push Notification:** The App (if connected) or local mobile notifications alert the user.
-4.  **User Opens Box:** The user physically interacts with the Clara pillbox.
+4.  **User Opens Box:** The user physically interacts with the ePO pillbox.
 5.  **Intake Verification:** Sensors (Reed switch open + Touch activated) confirm the intake.
 6.  **App Updates Firestore:** The App receives the confirmation via BLE, logs it in `usage_logs`, and decrements the `stock_count`.
 7.  **Success State:** The hardware alert stops, and the App UI reflects the updated status.
@@ -94,4 +94,4 @@ For the prototype, the ESP32 communicates with the Flutter app exclusively via B
 *   [ ] **Medication CRUD:** UI to manage medication details and schedules.
 
 ---
-*This document serves as the technical source of truth for the Clara project. Any changes to the architecture or data model must be reflected here first.*
+*This document serves as the technical source of truth for the ePO project. Any changes to the architecture or data model must be reflected here first.*
