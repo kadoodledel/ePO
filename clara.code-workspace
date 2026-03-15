@@ -1,0 +1,8 @@
+{
+  "folders": [
+    { "name": "Firmware", "path": "firmware" },
+    { "name": "App", "path": "app" },
+    { "name": "Docs", "path": "docs" }
+  ],
+  "settings": {}
+}

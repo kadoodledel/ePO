@@ -30,4 +30,22 @@ Configurable alerts designed to be persistent yet non-intrusive.
 *   **Delayed Reminders:** Intelligent re-notifications for missed doses to prevent "notification fatigue" while ensuring compliance.
 
 ---
-*This document serves as the primary vision for the ePO project. For technical implementation details, please refer to [BLUEPRINT.md](BLUEPRINT.md).*
+
+## Repository Structure
+
+```
+ePO/
+├── firmware/          # ESP32 firmware (PlatformIO / Arduino)
+│   ├── ePO.ino
+│   ├── src/
+│   ├── include/
+│   └── platformio.ini
+├── app/               # Flutter mobile application (iOS & Android)
+├── docs/              # Project documentation
+│   └── BLUEPRINT.md
+├── clara.code-workspace
+└── README.md
+```
+
+---
+*This document serves as the primary vision for the ePO project. For technical implementation details, please refer to [BLUEPRINT.md](docs/BLUEPRINT.md).*
