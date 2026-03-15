@@ -134,7 +134,7 @@ void main() {
     verify(() => mockMedicationRepository.logIntake('INTAKE_CONFIRMED', medicationId: 'med_first')).called(1);
   });
 
-  test('ALARM_START notification triggers logIntake with first medication id', () async {
+  test('ALARM_START notification sets alarmActive flag without calling logIntake', () async {
     appState = AppState(mockBLEService, mockMedicationRepository);
 
     final med1 = Medication(
@@ -150,11 +150,17 @@ void main() {
     medicationsController.add([med1]);
     await Future.delayed(Duration.zero);
 
+    expect(appState.alarmActive, isFalse);
+
     // Simulate notification
     notificationsController.add('ALARM_START');
     await Future.delayed(Duration.zero);
 
-    verify(() => mockMedicationRepository.logIntake('ALARM_START', medicationId: 'med_first')).called(1);
+    // alarmActive should be set to true
+    expect(appState.alarmActive, isTrue);
+
+    // logIntake must NOT be called for ALARM_START
+    verifyNever(() => mockMedicationRepository.logIntake(any(), medicationId: any(named: 'medicationId')));
   });
 
   test('INTAKE_CONFIRMED notification without medications passes null medicationId', () async {

@@ -11,6 +11,7 @@ void main() async {
 
   final bleService = BLEService();
   final medicationRepository = MedicationRepository();
+  await medicationRepository.initialize();
 
   runApp(
     MultiProvider(

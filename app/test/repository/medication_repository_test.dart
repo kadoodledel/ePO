@@ -1,13 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epo_app/data/models/medication.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:epo_app/repository/medication_repository.dart';
 
 void main() {
   group('MedicationRepository.logIntake', () {
     late MedicationRepository repository;
 
-    setUp(() {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
       repository = MedicationRepository();
+      await repository.initialize();
     });
 
     test('should decrement stockCount when event is INTAKE_CONFIRMED and valid medicationId is provided', () async {
@@ -76,6 +78,27 @@ void main() {
       final updatedMed = updatedMeds.firstWhere((m) => m.id == '1');
 
       expect(updatedMed.stockCount, equals(initialStock));
+    });
+
+    test('should seed example medication on first launch (empty storage)', () async {
+      final meds = await repository.getMedications().first;
+      expect(meds.length, equals(1));
+      expect(meds.first.id, equals('1'));
+      expect(meds.first.name, equals('Example Med'));
+    });
+
+    test('should persist medications across reinitialisation', () async {
+      // Decrement stock so we have something changed to persist
+      await repository.logIntake('INTAKE_CONFIRMED', medicationId: '1');
+
+      // Create a new repository backed by the same SharedPreferences instance
+      final repository2 = MedicationRepository();
+      await repository2.initialize();
+
+      final meds = await repository2.getMedications().first;
+      final med = meds.firstWhere((m) => m.id == '1');
+      // Stock should be 9 (decremented from 10) after reload
+      expect(med.stockCount, equals(9));
     });
   });
 }

@@ -20,6 +20,10 @@ int TimeManager::getMinute() {
     return _rtc.getMinute();
 }
 
+int TimeManager::getSecond() {
+    return _rtc.getSecond();
+}
+
 String TimeManager::getTimeString() {
     return _rtc.getTime("%H:%M:%S");
 }
